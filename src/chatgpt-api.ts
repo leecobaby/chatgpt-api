@@ -1,5 +1,7 @@
 import ExpiryMap from 'expiry-map'
+import { socksConnector, socksDispatcher } from 'fetch-socks'
 import pTimeout from 'p-timeout'
+import { Agent, Client } from 'undici'
 import { v4 as uuidv4 } from 'uuid'
 
 import * as types from './types'
@@ -7,6 +9,15 @@ import { AChatGPTAPI } from './abstract-chatgpt-api'
 import { fetch } from './fetch'
 import { fetchSSE } from './fetch-sse'
 import { markdownToText } from './utils'
+
+const dispatcher = socksDispatcher({
+  type: 5,
+  host: '10.10.10.253',
+  port: 1080
+
+  //userId: "username",
+  //password: "password",
+})
 
 const KEY_ACCESS_TOKEN = 'accessToken'
 const USER_AGENT =
@@ -245,6 +256,7 @@ export class ChatGPTAPI extends AChatGPTAPI {
         headers,
         body: JSON.stringify(body),
         signal: abortSignal,
+        dispatcher,
         onMessage: (data: string) => {
           if (data === '[DONE]') {
             return resolve(result)
@@ -344,7 +356,8 @@ export class ChatGPTAPI extends AChatGPTAPI {
     const res = await fetch(url, {
       method: 'POST',
       headers,
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      dispatcher
     }).then((r) => {
       if (!r.ok) {
         const error = new types.ChatGPTError(`${r.status} ${r.statusText}`)
@@ -402,10 +415,15 @@ export class ChatGPTAPI extends AChatGPTAPI {
         console.log('GET', url, headers)
       }
 
+      const tmp = await fetch('https://ifconfig.me/ip', { dispatcher })
+      console.log(await tmp.text())
+
       const res = await fetch(url, {
-        headers
-      }).then((r) => {
+        headers,
+        dispatcher
+      }).then(async (r) => {
         response = r
+        console.log('response', await r.text())
 
         if (!r.ok) {
           const error = new types.ChatGPTError(`${r.status} ${r.statusText}`)

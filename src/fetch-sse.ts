@@ -6,7 +6,10 @@ import { streamAsyncIterable } from './stream-async-iterable'
 
 export async function fetchSSE(
   url: string,
-  options: Parameters<typeof fetch>[1] & { onMessage: (data: string) => void }
+  options: Parameters<typeof fetch>[1] & {
+    onMessage: (data: string) => void
+    dispatcher: any
+  }
 ) {
   const { onMessage, ...fetchOptions } = options
   const res = await fetch(url, fetchOptions)

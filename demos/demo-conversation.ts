@@ -16,10 +16,24 @@ async function main() {
   const email = process.env.OPENAI_EMAIL
   const password = process.env.OPENAI_PASSWORD
 
-  const authInfo = await getOpenAIAuth({
-    email,
-    password
-  })
+  // const authInfo = await getOpenAIAuth({
+  //   email,
+  //   password
+  // })
+
+  const authInfo = {
+    sessionToken: process.env.SESSION_TOKEN,
+    clearanceToken: process.env.CLEARANCE_TOKEN,
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
+    headers: {
+      Accept: '*/*',
+      'Accept-Language': 'zh-CN,zh;q=0.9',
+      'accept-encoding': 'gzip, deflate, br',
+      'sec-ch-ua':
+        '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"'
+    }
+  }
 
   const api = new ChatGPTAPI({ ...authInfo })
   await api.initSession()

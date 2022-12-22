@@ -2,7 +2,18 @@
 
 // Use `fetch` for node.js >= 18
 // Use `fetch` for all other environments, including browsers
-const fetch = globalThis.fetch
+type Fetch = typeof globalThis.fetch
+
+interface NewFetch extends Fetch {
+  (input: RequestInfo, init: NewRequestInit): Promise<Response>
+}
+
+interface NewRequestInit extends RequestInit {
+  /** Not the best way */
+  dispatcher: any
+}
+
+const fetch: NewFetch = globalThis.fetch
 
 if (typeof fetch !== 'function') {
   throw new Error(
